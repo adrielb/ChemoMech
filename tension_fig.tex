@@ -1,16 +1,21 @@
 \documentclass[class=minimal,border=0pt]{standalone}
 \usepackage{tikz}
 \usetikzlibrary{calc,patterns,decorations.pathmorphing,decorations.markings}
+\usetikzlibrary{decorations.pathreplacing}
 
 \newcommand\YM{3}
 \newcommand\XG{0}
 \newcommand\xs{5}
 \newcommand\kvw{0.5}
+\newcommand\kvt{2.3}
+\newcommand\kvb{0.8}
 
 \begin{document}
+\tikzstyle{junc} = [fill,circle,scale=0.4]
 \tikzstyle{mass} = [draw,rectangle,rounded corners=1mm,fill=green!20]
+\tikzstyle{kv} = [draw,rectangle,fill=orange!20]
 \tikzstyle{ground}=[fill,pattern=north east lines,draw=none,minimum width=0.75cm,minimum height=0.3cm]
-\tikzstyle{spring}=[thick,decorate,decoration={zigzag,pre length=0.5cm,post length=0.5cm,segment length=6}]
+\tikzstyle{spring}=[thick,decorate,decoration={zigzag,pre length=0.3cm,post length=0.3cm,segment length=6}]
 \tikzstyle{damper}=[thick,decoration={markings,  
   mark connection node=dmp,
   mark=at position 0.5 with 
@@ -31,23 +36,29 @@
     \node[ground,anchor=north] at (\XG-\xs,0) (ground0) {};
     \node[ground,anchor=north] at (\XG,0) (ground1) {};
     \node[ground,anchor=north] at (\XG+\xs,0) (ground2) {};
+    \node[kv] at (\XG-\xs/2,\YM) (KVm0) {$KV_m$};
+    \node[kv] at (\XG+\xs/2,\YM) (KVm1) {$KV_m$};
+    \node[kv] at (\XG-\xs,\YM/2) (KVa0) {$KV_a$};
+    \node[kv] at (\XG+\xs,\YM/2) (KVa1) {$KV_a$};
     
-    
-    \coordinate (kvT) at (0,2.5);
-    \coordinate (kvTL) at (-\kvw,2.5);
-    \coordinate (kvTR) at (\kvw,2.5);
+    \coordinate (kvT) at (0,\kvt);
+    \coordinate (kvTL) at (-\kvw,\kvt);
+    \coordinate (kvTR) at (\kvw,\kvt);
 
-    \coordinate (kvB) at (0,0.5);
-    \coordinate (kvBL) at (-\kvw,0.5);
-    \coordinate (kvBR) at (\kvw,0.5);
+    \coordinate (kvB) at (0,\kvb);
+    \coordinate (kvBL) at (-\kvw,\kvb);
+    \coordinate (kvBR) at (\kvw,\kvb);
 
-    \draw[spring] (kvBR) -- (kvTR);
-    \draw[damper] (kvBL) -- (kvTL);
+    \node[junc] at (kvT) {};
+    \node[junc] at (kvB) {};
+
+    \draw[spring] (kvBR) -- (kvTR) node [midway,right] {$k_a$};
+    \draw[damper] (kvBL) -- (kvTL) node [midway,left] {$\eta_a$};
 
     \draw[] (kvT) -- (mass1);
     \draw[] (kvTL) -- (kvTR);
 
-    \draw[] (ground-i) -- (kvB);
+    \draw[] (ground1) -- (kvB);
     \draw[] (kvBL) -- (kvBR);
 
 
@@ -55,15 +66,23 @@
     \draw[] (ground1.north west) -- (ground1.north east);
     \draw[] (ground2.north west) -- (ground2.north east);
 
-    \draw (\XG-\xs-1,\YM) -- (mass0);
-    \draw (mass2) -- (\XG+\xs+1,\YM);
+    \draw[<-,red,thick] (\XG-\xs-1,\YM) -- (mass0);
+    \draw[->,red,thick] (mass2) -- (\XG+\xs+1,\YM);
 
     \node[] at (\xs/2, 4) (membrane) {Membrane};
-    \draw[decorate,decoration={brace},thick] m1 to m2;
+    %\draw[decorate,decoration={brace,amplitude=10pt}] (mass1.east) -- (mass2.west);
+
     \node[] at (\xs/2, 2) (adhesion) {Adhesion};
-    \draw[decorate,decoration={brace},thick] m1 to m2;
+    %\draw[decorate,decoration={brace,amplitude=10pt}] (kvT+(2,0)) -- (kvB+(2,0));
 
-
+    \draw[] (ground0.north) -- (KVa0.south);
+    \draw[] (ground2.north) -- (KVa1.south);
+    \draw[] (KVa0) -- (mass0.south);
+    \draw[] (KVa1) -- (mass2.south);
+    \draw[] (KVm0) -- (mass0);
+    \draw[] (KVm1) -- (mass2);
+    \draw[] (KVm0) -- (mass1);
+    \draw[] (KVm1) -- (mass1);
 \end{tikzpicture}
 \end{document}
 
